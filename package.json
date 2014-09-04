@@ -1,0 +1,26 @@
+{
+  "name": "lo-q",
+  "version": "0.1.0",
+  "description": "A lightweight logging library for node",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://Cosrnos@github.com/Cosrnos/lo-q.git"
+  },
+  "keywords": [
+    "logging"
+  ],
+  "author": "Alex Roth <alex@coschedule.com> (http://cosrnos.com/)",
+  "license": "The Unlicense",
+  "bugs": {
+    "url": "https://github.com/Cosrnos/lo-q/issues"
+  },
+  "homepage": "https://github.com/Cosrnos/lo-q",
+  "dependencies": {
+    "underscore": "^1.7.0",
+    "cli-color": "^0.3.2"
+  }
+}
