@@ -7,7 +7,7 @@ module.exports = {
 		color: "196"
 	},
 	_setup: function(logger) {
-		logger.trace_limit = 4;
+		logger.traceLimit = 4;
 	},
 	handler: function() {
 		var args = Array.prototype.slice.call(arguments);
@@ -16,9 +16,9 @@ module.exports = {
 		var limit = 0;
 
 		splitted.splice(0, 5);
-		limit = splitted.length - this.trace_limit;
+		limit = splitted.length - this.traceLimit;
 		if (limit > 0) {
-			splitted.splice(this.trace_limit - 1, limit);
+			splitted.splice(this.traceLimit - 1, limit);
 			splitted[splitted.length - 1] = splitted[splitted.length - 1] + "...";
 		}
 

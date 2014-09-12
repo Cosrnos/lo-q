@@ -10,7 +10,7 @@ module.exports = {
 		background: "62"
 	},
 	_setup: function(logger) {
-		logger.loq_trace_limit = 10;
+		logger.loqTraceLimit = 10;
 	},
 	handler: function() {
 		var args = Array.prototype.slice.call(arguments);
@@ -24,7 +24,7 @@ module.exports = {
 			}
 		});
 
-		limit = splitted.length - this.loq_trace_limit;
+		limit = splitted.length - this.loqTraceLimit;
 		if (limit > 0) {
 			splitted.splice(this.trace_limit - 1, limit);
 			splitted[splitted.length - 1] = splitted[splitted.length - 1] + "...";

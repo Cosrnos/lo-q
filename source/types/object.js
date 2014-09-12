@@ -16,7 +16,7 @@ module.exports = {
 		// We don't need the prefix
 		args.shift();
 		_.each(args, function(obj) {
-			log_object(context, buffer, obj);
+			logObject(context, buffer, obj);
 		});
 	}
 };
@@ -63,7 +63,7 @@ function bufferModel() {
 	})
 }
 
-function log_object(context, buffer, obj, level) {
+function logObject(context, buffer, obj, level) {
 	level = level || 1;
 
 	if (level === 1) {
@@ -73,9 +73,9 @@ function log_object(context, buffer, obj, level) {
 	if (_.isObject(obj)) {
 		_.each(obj, function(value, key) {
 			buffer.push(context);
-			buffer.add(get_indentation(level));
+			buffer.add(getIndentation(level));
 			buffer.add(clc.xterm(context.config.colors.object.key)(key) + " : ");
-			parse_value(context, buffer, level, value);
+			parseValue(context, buffer, level, value);
 		});
 	}
 
@@ -85,7 +85,7 @@ function log_object(context, buffer, obj, level) {
 	}
 }
 
-function parse_value(context, buffer, level, value) {
+function parseValue(context, buffer, level, value) {
 	if (_.isArray(value)) {
 		buffer.add("[ ");
 		log_array(context, buffer, value, level + 1);
@@ -95,11 +95,11 @@ function parse_value(context, buffer, level, value) {
 		buffer.add('"' + clc.xterm(context.config.colors.string)(value) + '", ');
 	} else if (_.isObject(value)) {
 		buffer.add('{');
-		log_object(context, buffer, value, level + 1);
+		logObject(context, buffer, value, level + 1);
 		trimComma(buffer);
 		if (!buffer.isEmpty) {
 			buffer.push(context);
-			buffer.add(get_indentation(level));
+			buffer.add(getIndentation(level));
 		}
 		buffer.add('}');
 	} else {
@@ -107,7 +107,7 @@ function parse_value(context, buffer, level, value) {
 	}
 }
 
-function get_indentation(level) {
+function getIndentation(level) {
 	level = level || 1;
 
 	return (Array(level).join('  ')).slice(-level)
@@ -134,7 +134,7 @@ function log_array(context, buffer, array, level) {
 
 	if (_.isArray(array)) {
 		_.each(array, function(value) {
-			parse_value(context, buffer, level, value);
+			parseValue(context, buffer, level, value);
 		});
 	}
 

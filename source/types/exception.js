@@ -1,4 +1,5 @@
 var _ = require('underscore');
+var clc = require('cli-color');
 
 module.exports = {
 	name: 'EXCEPTION',
@@ -9,19 +10,15 @@ module.exports = {
 		color: "15",
 		background: "1"
 	},
-	color: "15",
-	background: "1",
 	_setup: function(logger) {
 		logger.loq_trace_limit = 10;
 	},
 	handler: function() {
 		var args = Array.prototype.slice.call(arguments);
-
+		var self = this;
 		_.each(args, function(arg) {
 			if (arg.stack) {
-				logException(arg);
-			} else {
-				console.log(arg);
+				logException.bind(self)(arg);
 			}
 		});
 	}
@@ -40,6 +37,5 @@ function logException(ex) {
 
 	stack = splitted.join('\r\n');
 
-	this._log(ex);
-	this._log(stack);
+	this._log(clc.bgXterm(1)(clc.xterm(15)(stack)));
 }
