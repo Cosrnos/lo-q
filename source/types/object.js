@@ -1,5 +1,5 @@
 var _ = require('underscore');
-
+var clc = require('cli-color');
 module.exports = {
 	name: 'object',
 	level: 999,
@@ -11,98 +11,134 @@ module.exports = {
 	},
 	handler: function() {
 		var args = Array.prototype.slice.call(arguments);
+		var context = this;
+		var buffer = new bufferModel();
 		// We don't need the prefix
 		args.shift();
-		_.each(args, log_object);
+		_.each(args, function(obj) {
+			log_object(context, buffer, obj);
+		});
 	}
 };
 
-function log_object(obj, level) {
+function bufferModel() {
+	var buffer = "";
+	var level = 0;
+
+	this.add = function(val) {
+		buffer += val;
+	};
+
+	this.push = function(context, val) {
+		val = val || "";
+		this.add(val);
+		this.flush(context);
+	};
+
+	this.get = function() {
+		return buffer;
+	};
+
+	this.put = function(newBuff) {
+		buffer = newBuff;
+	}
+
+	this.flush = function(context) {
+		context._log(buffer);
+		this.clear();
+	};
+
+	this.clear = function() {
+		buffer = "";
+	}
+
+	this.addLevel = function() {
+		level++;
+	};
+
+	Object.defineProperty(this, 'isEmpty', {
+		get: function() {
+			return (buffer.replace(/\s/g, '').length === 0);
+		}
+	})
+}
+
+function log_object(context, buffer, obj, level) {
 	level = level || 1;
 
 	if (level === 1) {
-		object_log_type.default_handler('{');
+		buffer.add("{");
+		level += 1;
 	}
 	if (_.isObject(obj)) {
 		_.each(obj, function(value, key) {
-			var toLog = "";
-			for (var i = 0; i < level; i++) {
-				toLog += "  ";
-			}
-			toLog += clc.xterm(logger.config.colors.object.key)(key) + " : ";
-			if (_.isArray(value)) {
-				toLog += "[";
-				object_log_type.default_handler(toLog);
-				log_array(value, level + 1);
-				toLog = "";
-				for (var i = 0; i < level; i++) {
-					toLog += "  ";
-				}
-				toLog += "]"
-			} else if (_.isString(value)) {
-				toLog += '"' + clc.xterm(logger.config.colors.string)(value) + '",';
-			} else if (_.isObject(value)) {
-				object_log_type.default_handler(toLog);
-				log_object(value, level + 1);
-				toLog = "";
-				for (var i = 0; i < level; i++) {
-					toLog += "  ";
-				}
-			} else {
-				toLog += clc.xterm(logger.config.colors.object.value)(value) + ",";
-			}
-
-			object_log_type.default_handler(toLog);
+			buffer.push(context);
+			buffer.add(get_indentation(level));
+			buffer.add(clc.xterm(context.config.colors.object.key)(key) + " : ");
+			parse_value(context, buffer, level, value);
 		});
 	}
-	if (level === 1) {
-		object_log_type.default_handler('}');
+
+	if (level - 1 === 1) {
+		buffer.clear();
+		buffer.push(context, '}');
 	}
 }
 
-function log_array(array, level) {
+function parse_value(context, buffer, level, value) {
+	if (_.isArray(value)) {
+		buffer.add("[ ");
+		log_array(context, buffer, value, level + 1);
+		trimComma(buffer);
+		buffer.push(context, " ]")
+	} else if (_.isString(value)) {
+		buffer.add('"' + clc.xterm(context.config.colors.string)(value) + '", ');
+	} else if (_.isObject(value)) {
+		buffer.add('{');
+		log_object(context, buffer, value, level + 1);
+		trimComma(buffer);
+		if (!buffer.isEmpty) {
+			buffer.push(context);
+			buffer.add(get_indentation(level));
+		}
+		buffer.add('}');
+	} else {
+		buffer.add(clc.xterm(context.config.colors.object.value)(value) + ", ");
+	}
+}
+
+function get_indentation(level) {
+	level = level || 1;
+
+	return (Array(level).join('  ')).slice(-level)
+}
+
+function trimComma(buffer) {
+	var buff = buffer.get().split('');
+
+	if (buff[buff.length - 1] === ' ' && buff[buff.length - 2] === ',') {
+		buff.splice(buff.length - 2);
+	}
+
+	buffer.put(buff.join(''));
+	return;
+}
+
+function log_array(context, buffer, array, level) {
 	level = level || 1;
 
 	if (level === 1) {
-		object_log_type.default_handler('[');
+		buffer.add('[');
+		level++;
 	}
 
 	if (_.isArray(array)) {
 		_.each(array, function(value) {
-			var toLog = "";
-			for (var i = 0; i < level; i++) {
-				toLog += "  ";
-			}
-			if (_.isArray(value)) {
-				toLog += "[";
-				object_log_type.default_handler(toLog);
-				log_array(value, level + 1);
-				toLog = "";
-				for (var i = 0; i < level; i++) {
-					toLog += "  ";
-				}
-				toLog += "]"
-
-			} else if (_.isString(value)) {
-				toLog += '"' + clc.xterm(logger.config.colors.string)(value) + '",';
-			} else if (_.isObject(value)) {
-				toLog += "{";
-				object_log_type.default_handler(toLog);
-				log_object(value, level + 1);
-				toLog = "";
-				for (var i = 0; i < level; i++) {
-					toLog += "  ";
-				}
-				toLog += "}"
-			} else {
-				toLog += clc.xterm(logger.config.colors.object.value)(value) + ",";
-			}
-
-			object_log_type.default_handler(toLog);
+			parse_value(context, buffer, level, value);
 		});
 	}
 
-	if (level === 1) {
-		object_log_type.default_handler(']');
+	if (level - 1 === 1) {
+		buffer.push(']');
 	}
 }

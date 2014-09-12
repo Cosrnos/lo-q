@@ -6,8 +6,10 @@ var _defaults = [];
 var _all = [];
 
 var _loadDefaults = function() {
+	_loadType('./_loq_bad.js');
 	_loadType('./debug.js');
 	_loadType('./error.js');
+	_loadType('./exception.js');
 	_loadType('./info.js');
 	_loadType('./object.js');
 	_loadType('./warning.js');

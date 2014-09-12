@@ -2,7 +2,7 @@ var _ = require('underscore');
 var clc = require('cli-color');
 
 var logType = require('./logtype.js');
-var config = function() {};
+var config = require('./config.js');
 
 var _defaultLog = console.log.bind(console);
 var logger;
@@ -16,6 +16,7 @@ logger = function() {
 	this.threshold = 0;
 	this.config = new config();
 	this._logTypes = [];
+	this._log = _defaultLog;
 	this.applyType = function(options) {
 		var lt = new logType();
 		var prefix = _.defaults(_.extend(lt.prefix, options.prefix), options.prefix);
@@ -82,19 +83,22 @@ Object.defineProperty(logger.prototype, 'logType', {
  * Default entry. Logs the given params and applies styles as necessary
  */
 function _log() {
-	var args = Array.prototype.slice.call(arguments);
+	try {
+		var args = Array.prototype.slice.call(arguments);
 
-	if (args && args[0]) {
-		if (args[0] instanceof logType) {
-			return _processLogType.apply(this, args);
+		if (args && args[0]) {
+			if (args[0] instanceof logType) {
+				return _processLogType.apply(this, args);
+			}
+
+			_defaultLog.apply(this, args);
+		} else {
+			this.warn('Cannot call log with empty parameters');
 		}
-
-		_defaultLog.apply(this, args);
-	} else {
-		this.warn('Cannot call log with empty parameters');
+	} catch (ex) {
+		this._loq_bad("Lo-Q Internal error: ", ex);
+		return this;
 	}
-
-	return this;
 };
 
 /**

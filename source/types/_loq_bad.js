@@ -1,13 +1,16 @@
+var _ = require('underscore');
+
 module.exports = {
-	name: 'error',
+	name: 'LOQ ERROR',
 	level: 4,
-	_cmd: ['error'],
+	_cmd: ['_loq_bad'],
 	prefix: {
-		text: 'ERROR',
-		color: "196"
+		text: 'LOQ INTERNAL',
+		color: "15",
+		background: "62"
 	},
 	_setup: function(logger) {
-		logger.trace_limit = 4;
+		logger.loq_trace_limit = 10;
 	},
 	handler: function() {
 		var args = Array.prototype.slice.call(arguments);
@@ -15,8 +18,13 @@ module.exports = {
 		var splitted = stack.split("\n");
 		var limit = 0;
 
-		splitted.splice(0, 5);
-		limit = splitted.length - this.trace_limit;
+		_.each(args, function(arg) {
+			if (arg.stack) {
+				splitted = arg.stack.split("\n");
+			}
+		});
+
+		limit = splitted.length - this.loq_trace_limit;
 		if (limit > 0) {
 			splitted.splice(this.trace_limit - 1, limit);
 			splitted[splitted.length - 1] = splitted[splitted.length - 1] + "...";
@@ -26,5 +34,6 @@ module.exports = {
 
 		this._log.apply(this, args);
 		this._log(stack);
+		this._log("Please share this information at [https://github.com/Cosrnos/lo-q]");
 	}
 };
