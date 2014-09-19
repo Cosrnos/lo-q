@@ -32,6 +32,10 @@ logger = function() {
 			self.warn('A log type that has already been defined cannot be overwritten. Tried overwriting ' + lt.name);
 		}
 
+		if (lt.hasOwnProperty('_setup')) {
+			lt._setup(self);
+		}
+
 		if (lt.hasOwnProperty('_cmd')) {
 			if (typeof lt._cmd === 'string') {
 				lt._cmd = [lt._cmd];
@@ -113,7 +117,7 @@ function _processLogType() {
 		if (args[0].name) {
 			type = args.shift();
 
-			if (type.level < logger.threshold) {
+			if (type.level < this.threshold) {
 				return;
 			}
 
