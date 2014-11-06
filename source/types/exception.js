@@ -31,7 +31,7 @@ function logException(ex) {
 	limit = splitted.length - this.loq_trace_limit;
 
 	if (limit > 0) {
-		splitted.splice(this.trace_limit - 1, limit);
+		splitted.splice(splitted.length - limit, limit);
 		splitted[splitted.length - 1] = splitted[splitted.length - 1] + "...";
 	}
 
